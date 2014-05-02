@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.xoxo"
+    android:versionCode="1"
+    android:versionName="0.95.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.SherlockCustom" >
+        <activity
+            android:name="com.xoxo.Welcome"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.xoxo.UserRegistration"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Register" >
+        </activity>
+        <activity
+            android:name="com.xoxo.InitializeUser"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Initializing..." >
+        </activity>
+        <activity
+            android:name="com.xoxo.Dashboard"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Dashboard" >
+        </activity>
+        <activity
+            android:name="com.xoxo.Xo"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Xo" >
+        </activity>
+        <activity
+            android:name="com.xoxo.Points"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Your points" >
+        </activity>
+        <activity
+            android:name="com.xoxo.SetStatusActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label=":-)" >
+        </activity>
+        <activity
+            android:name="com.xoxo.SayMoreActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Xo" >
+        </activity>
+        <activity
+            android:name="com.xoxo.PointReasons"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Your points" >
+        </activity>
+        <activity
+            android:name="com.xoxo.About"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="About"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.xoxo.NotificationView"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="Notification"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <receiver
+            android:name="com.xoxo.SmsListener"
+            android:enabled="true" >
+            <intent-filter android:priority="10000000000000000000000000000000000" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.xoxo.backend.ListenerService"
+            android:label="listener" >
+        </service>
+
+        <receiver
+            android:name="com.xoxo.backend.Broadcast"
+            android:enabled="true" >
+            android:name="android.intent.action.BOOT_COMPLETED"
+            <intent-filter android:priority="10000000000000000000000000000000000" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/mStatus"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="always"
+        android:title="Your status"/>
+    <item
+        android:id="@+id/mPoints"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:showAsAction="always"
+        android:title="Your points"/>
+    <item
+        android:id="@+id/mRefresh"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:showAsAction="never"
+        android:title="Refresh"/>
+    <item
+        android:id="@+id/mShareApp"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="never"
+        android:title="Invite friends"/>
+
+</menu>
