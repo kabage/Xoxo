@@ -191,6 +191,7 @@ public class ListenerService extends Service {
 			public void processPacket(Packet pack) {
 				// TODO Auto-generated method stub
 				Message msg = (Message) pack;
+				
 
 				Log.i("message received in service", msg.getBody() + "...."
 						+ "from" + msg.getFrom() + ".....to" + msg.getTo());

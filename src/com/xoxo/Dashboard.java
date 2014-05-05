@@ -417,6 +417,8 @@ class loadingImage extends AsyncTask<String, Void, String> {
 
 		adapter = new IconListItemAdapter(context, R.layout.icon_list_item,
 				userFriend);
+		listView.invalidateViews();
+		adapter.notifyDataSetChanged();
 
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {

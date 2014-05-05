@@ -37,7 +37,7 @@ public class Register {
 				PASSWORD, myHandler);
 		reg.execute();
 
-	}
+	} ///smack 
 
 }
 
