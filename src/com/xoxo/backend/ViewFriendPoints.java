@@ -29,6 +29,8 @@ public class ViewFriendPoints {
 		muc = new MultiUserChat(connect, friendNumber + "@conference.candr.com");
 
 		try {
+			if (muc.isJoined() != true) {
+			}
 			muc.join(connect.getUser());
 		} catch (XMPPException e) {
 			Log.e("error logging in to view friends's channnel", e.toString());
@@ -63,5 +65,10 @@ public class ViewFriendPoints {
 
 	}
 
-	
+	public static void leaveRoom() {
+		points = null;
+		friendPoints = friendPoints * 0;
+		muc.leave();
+	}
+
 }

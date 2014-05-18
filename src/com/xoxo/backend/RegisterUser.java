@@ -127,8 +127,10 @@ public class RegisterUser {
 					Log.i("usernmae and password are", PHONE_NUMBER + PASSWORD);
 					if (connection.isAuthenticated() == false) {
 						connection.login(PHONE_NUMBER, "password");
-						CreateRoster.getContacts(context);
+
 						theNames = CreateRoster.contactNameArray;
+						CreateRoster.getContacts(context);
+
 						theNumbers = CreateRoster.contactNumberArray;
 						for (int i = 0; i < theNames.size(); i++) {
 							try {
@@ -166,6 +168,7 @@ public class RegisterUser {
 			if (connection.isAuthenticated() == false) {
 				connection.login(PHONE_NUMBER, PASSWORD);
 				registerPersonAsGroup(connection, PHONE_NUMBER);
+				registerNotificationSub(connection, PHONE_NUMBER);
 
 			}
 		} catch (XMPPException e) {
@@ -197,15 +200,40 @@ public class RegisterUser {
 		MultiUserChat muc = new MultiUserChat(connection, PHONE_NUMBER
 				+ "@conference.candr.com");
 		try {
+
 			muc.create(PHONE_NUMBER);
+			muc.join(connection.getUser());
 		} catch (XMPPException e) {
-			Log.e("errror occcured registering person as a group", e.toString());
+			Log.e("error creating the room", e.toString());
+		}
+
+		if (muc != null && muc.isJoined()) {
+			muc.leave();
 		}
 
 	}
 
 	public static void disconnnectTheSession() {
 		connection.disconnect();
+	}
+
+	public static void registerNotificationSub(XMPPConnection connection,
+			String PHONE_NUMBER) {
+
+		MultiUserChat muc = new MultiUserChat(connection, PHONE_NUMBER
+				+ "notification" + "@conference.candr.com");
+		try {
+
+			muc.create(PHONE_NUMBER);
+			muc.join(connection.getUser());
+		} catch (XMPPException e) {
+			Log.e(" error creating the notification sub", e.toString());
+		}
+
+		if (muc != null && muc.isJoined()) {
+			muc.leave();
+		}
+
 	}
 
 }

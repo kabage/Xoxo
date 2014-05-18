@@ -214,9 +214,9 @@ public class Dashboard extends SherlockActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
-						Intent i = new Intent(
-								Intent.ACTION_VIEW,
-								Uri.parse("https://play.google.com/store/apps/details?=com.xoxo"));
+						Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(
+
+						"https://play.google.com/store/apps/details?=com.xoxo"));
 						startActivity(i);
 						AppRate.reset(Dashboard.this);
 						rate.setMinDaysUntilPrompt(120);
@@ -417,8 +417,6 @@ class loadingImage extends AsyncTask<String, Void, String> {
 
 		adapter = new IconListItemAdapter(context, R.layout.icon_list_item,
 				userFriend);
-		listView.invalidateViews();
-		adapter.notifyDataSetChanged();
 
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {

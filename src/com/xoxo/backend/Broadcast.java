@@ -15,7 +15,7 @@ public class Broadcast extends BroadcastReceiver {
 	public void onReceive(final Context context, Intent intent) {
 		final int DO_UPDATE_TEXT = 0;
 		final int DO_THAT = 1;
-//on receive method
+		// on receive method
 		handler = new Handler() {
 			public void handleMessage(Message msg) {
 				final int what = msg.what;

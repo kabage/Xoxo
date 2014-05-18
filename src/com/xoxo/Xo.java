@@ -28,6 +28,7 @@ public class Xo extends SherlockActivity implements DialModel.Listener {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setUp();
+
 		ViewFriendPoints.viewPoints(jid);
 	}
 
@@ -120,7 +121,7 @@ public class Xo extends SherlockActivity implements DialModel.Listener {
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-
+		ViewFriendPoints.leaveRoom();
 		finish();
 	}
 

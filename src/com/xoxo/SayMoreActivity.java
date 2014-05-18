@@ -129,6 +129,7 @@ public class SayMoreActivity extends SherlockActivity {
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
+		// RateFriend.leaveNotificationChannel();
 		finish();
 	}
 

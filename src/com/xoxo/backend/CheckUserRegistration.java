@@ -21,34 +21,39 @@ public class CheckUserRegistration {
 		String phoneNumber = jid.replaceAll("@candr.com", "").replaceAll(
 				"/Smack", "");
 
-		UserSearchManager search = new UserSearchManager(connection);
-		try {
-			searchForm = search.getSearchForm("search."
-					+ connection.getServiceName());
-		} catch (XMPPException e) {
-			Log.e("an error occured when trying to get search form server ",
-					e.toString());
-		}
-		Form answerForm = searchForm.createAnswerForm();
-		answerForm.setAnswer("Username", true);
-		answerForm.setAnswer("search", phoneNumber);
-
-		org.jivesoftware.smackx.ReportedData data = null;
-		try {
-			data = search.getSearchResults(answerForm,
-					"search." + connection.getServiceName());
-		} catch (XMPPException e) {
-			Log.e("an error occured when tring to get errors", e.toString());
-		}
-
-		if (data.getRows() != null) {
-			Iterator<Row> iterate = data.getRows();
-
-			if (iterate.hasNext()) {
-				rosterEntryState = true;
-			} else {
-				rosterEntryState = false;
+		if (connection != null) {
+			UserSearchManager search = new UserSearchManager(connection);
+			try {
+				searchForm = search.getSearchForm("search."
+						+ connection.getServiceName());
+			} catch (XMPPException e) {
+				Log.e("an error occured when trying to get search form server ",
+						e.toString());
 			}
+			Form answerForm = searchForm.createAnswerForm();
+			answerForm.setAnswer("Username", true);
+			answerForm.setAnswer("search", phoneNumber);
+
+			org.jivesoftware.smackx.ReportedData data = null;
+			try {
+				data = search.getSearchResults(answerForm, "search."
+						+ connection.getServiceName());
+			} catch (XMPPException e) {
+				Log.e("an error occured when tring to get errors", e.toString());
+			}
+
+			if (data != null) {
+				if (data.getRows() != null) {
+					Iterator<Row> iterate = data.getRows();
+
+					if (iterate.hasNext()) {
+						rosterEntryState = true;
+					} else {
+						rosterEntryState = false;
+					}
+				}
+			}
+
 		}
 		return rosterEntryState;
 

@@ -11,7 +11,8 @@ import android.util.Log;
 
 public class RateFriend {
 	static XMPPConnection connection = MaintainConnection.connection;
-	static MultiUserChat muc;
+	static MultiUserChat mucPoints;
+	static MultiUserChat mucNotification;
 	static int friendPoints = 0;
 	static String friendNumber;
 	static int numberOfPoints;
@@ -20,6 +21,7 @@ public class RateFriend {
 
 	public static void rate(String jid, String points, String extraWords) {
 
+		sendChatMessage(jid);
 		data = new JSONObject();
 		try {
 			data.put("points", points);
@@ -28,28 +30,32 @@ public class RateFriend {
 			Log.e("error occured putting data in json", e1.toString());
 		}
 
-		joinChannel(jid);
+		joinPointChannel(jid);
 		try {
-			muc.sendMessage(data.toString());
+			Message msg = new Message() {
+			};
+			msg.setProperty("readState", false);
+			msg.setBody(data.toString());
+
+			mucPoints.sendMessage(msg);
 		} catch (XMPPException e) {
 			Log.e("error occured sending points", e.toString());
 		}
-		sendExtraWords(jid, connection, data.toString());
 
 	}
 
 	public static void leaveChannel() {
-		muc.leave();
+		mucPoints.leave();
 
 	}
 
-	public static void joinChannel(String jid) {
+	public static void joinPointChannel(String jid) {
 		friendNumber = jid.replaceAll("@candr.com", "");
-		muc = new MultiUserChat(connection, friendNumber
+		mucPoints = new MultiUserChat(connection, friendNumber
 				+ "@conference.candr.com");
 
 		try {
-			muc.join(connection.getUser());
+			mucPoints.join(connection.getUser());
 		} catch (XMPPException e1) {
 			Log.e("an error occured when trying to join friend channel",
 					e1.toString());
@@ -57,13 +63,13 @@ public class RateFriend {
 
 	}
 
-	public static void sendExtraWords(String jid, XMPPConnection connection,
-			String extraWords) {
+	public static void sendChatMessage(String jid) {
+		Message message = new Message(jid, Message.Type.chat);
+		message.setBody("a message sent offline");
+		message.setFrom(connection.getUser());
 
-		
-		Message msg = new Message(jid, Message.Type.chat);
-		msg.setFrom(connection.getUser());
-		msg.setBody(data.toString());
-		connection.sendPacket(msg);
+		connection.sendPacket(message);
+
 	}
+
 }
