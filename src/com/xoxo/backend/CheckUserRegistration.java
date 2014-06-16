@@ -15,6 +15,7 @@ public class CheckUserRegistration {
 	static Form searchForm;
 	public static boolean rosterEntryState = false;
 	public static XMPPConnection connection = MaintainConnection.connection;
+	static Form answerForm;
 
 	public static boolean check(String jid) {
 
@@ -30,9 +31,14 @@ public class CheckUserRegistration {
 				Log.e("an error occured when trying to get search form server ",
 						e.toString());
 			}
-			Form answerForm = searchForm.createAnswerForm();
-			answerForm.setAnswer("Username", true);
-			answerForm.setAnswer("search", phoneNumber);
+			try {
+				answerForm = searchForm.createAnswerForm();
+				answerForm.setAnswer("Username", true);
+				answerForm.setAnswer("search", phoneNumber);
+			} catch (Exception e) {
+				Log.e("an error occured when creating the answer form ",
+						e.toString());
+			}
 
 			org.jivesoftware.smackx.ReportedData data = null;
 			try {

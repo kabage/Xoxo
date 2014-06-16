@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class RateFriend {
 	static XMPPConnection connection = MaintainConnection.connection;
-	static MultiUserChat mucPoints;
+	static MultiUserChat mucPoints = ViewFriendPoints.muc;
 	static MultiUserChat mucNotification;
 	static int friendPoints = 0;
 	static String friendNumber;
@@ -21,7 +21,6 @@ public class RateFriend {
 
 	public static void rate(String jid, String points, String extraWords) {
 
-		sendChatMessage(jid);
 		data = new JSONObject();
 		try {
 			data.put("points", points);
@@ -29,17 +28,13 @@ public class RateFriend {
 		} catch (JSONException e1) {
 			Log.e("error occured putting data in json", e1.toString());
 		}
-
+		sendChatMessage(jid);
 		joinPointChannel(jid);
 		try {
-			Message msg = new Message() {
-			};
-			msg.setProperty("readState", false);
-			msg.setBody(data.toString());
+			mucPoints.sendMessage(data.toString());
 
-			mucPoints.sendMessage(msg);
 		} catch (XMPPException e) {
-			Log.e("error occured sending points", e.toString());
+			Log.e("an error occured sending points ", data.toString());
 		}
 
 	}
@@ -50,26 +45,22 @@ public class RateFriend {
 	}
 
 	public static void joinPointChannel(String jid) {
-		friendNumber = jid.replaceAll("@candr.com", "");
-		mucPoints = new MultiUserChat(connection, friendNumber
-				+ "@conference.candr.com");
-
-		try {
-			mucPoints.join(connection.getUser());
-		} catch (XMPPException e1) {
-			Log.e("an error occured when trying to join friend channel",
-					e1.toString());
-		}
+		friendNumber = jid.replaceAll("@candr.com", "")
+				.replaceAll("/Smack", "");
 
 	}
 
 	public static void sendChatMessage(String jid) {
 		Message message = new Message(jid, Message.Type.chat);
-		message.setBody("a message sent offline");
+		message.setBody(data.toString());
 		message.setFrom(connection.getUser());
 
-		connection.sendPacket(message);
+		try {
+			connection.getChatManager().createChat(jid, null)
+					.sendMessage(message);
+		} catch (XMPPException e) {
+			Log.e("error occured sending message ", e.toString());
+		}
 
 	}
-
 }

@@ -1,6 +1,11 @@
 package com.xoxo.backend;
 
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.MessageTypeFilter;
+import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 
 import android.app.Service;
 import android.content.Intent;
@@ -35,7 +40,6 @@ public class ListenerService extends Service {
 
 			@Override
 			public void run() {
-
 				receiveData();
 			}
 		});
@@ -47,6 +51,21 @@ public class ListenerService extends Service {
 		if (connect != null) {
 			ViewOwn.viewPoints(ListenerService.this);
 
+			PacketFilter packetFilter = new MessageTypeFilter(Message.Type.chat);
+
+			connect.addPacketListener(new PacketListener() {
+
+				@Override
+				public void processPacket(Packet packet) {
+					// TODO Auto-generated method stub
+					Message msg = (Message) packet;
+					NotificationAndCaching.notification(msg,
+							ListenerService.this, 0);
+
+				}
+			}, packetFilter);
+
 		}
 	}
+
 }

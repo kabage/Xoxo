@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,30 +20,34 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.tjeannin.apprate.AppRate;
+import com.xoxo.backend.CacheStore;
 import com.xoxo.backend.InitializeConnection;
 import com.xoxo.backend.ListenerService;
+import com.xoxo.backend.RefreshStatuses;
 import com.xoxo.backend.RosterRetrieval;
+import com.xoxo.backend.loadingImage;
 
 public class Dashboard extends SherlockActivity {
 
-	ListView listView;
 	AlertDialog.Builder builder;
 	AppRate rate;
 	Intent i;
-	static public Handler myHandler;
+	static public Handler myHandler, handler, refreshHandler;
 	String status;
-	ArrayList<String> cachedNames, cachedJids, cachedStatuses;
+	public static ArrayList<String> cachedNames, cachedJids, cachedStatuses;
 	SharedPreferences sp;
 	boolean isNetwork;
-
+	public static ListView list;
 	public static boolean active = false;
 	public static boolean open = false;
-	boolean cached = false;
+	public static boolean cached = false;
+	public static IconListItemAdapter adapter;
+	public static ArrayList<String> jids;
+	ArrayList<IconListItem> userFriend;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,15 +84,23 @@ public class Dashboard extends SherlockActivity {
 		cachedStatuses = new ArrayList<String>();
 
 		try {
+
+			CacheStore.initialize();
 			cachedNames = (ArrayList<String>) ObjectSerializer
 					.deserialize(sp.getString("names",
 							ObjectSerializer.serialize(new ArrayList<String>())));
+
 			cachedJids = (ArrayList<String>) ObjectSerializer
 					.deserialize(sp.getString("jids",
 							ObjectSerializer.serialize(new ArrayList<String>())));
 			cachedStatuses = (ArrayList<String>) ObjectSerializer
 					.deserialize(sp.getString("statuses",
 							ObjectSerializer.serialize(new ArrayList<String>())));
+
+			CacheStore.cachedNames.addAll(cachedNames);
+			CacheStore.cachedJids.addAll(cachedJids);
+			CacheStore.cachedStatuses.addAll(cachedStatuses);
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -176,12 +186,11 @@ public class Dashboard extends SherlockActivity {
 					switch (what) {
 					case DO_UPDATE_TEXT:
 						configureList();
-
 						Intent in = new Intent(Dashboard.this,
 								ListenerService.class);
 						startService(in);
 
-						Log.i("message received", "message received ");
+						Log.i("message received at 184", "message received ");
 						break;
 					case DO_THAT:
 						// doThat();
@@ -196,10 +205,57 @@ public class Dashboard extends SherlockActivity {
 
 	private void configureList() {
 
-		ListView list = (ListView) findViewById(R.id.lvListItems);
-		loadingImage l = new loadingImage(Dashboard.this, list);
+		list = (ListView) findViewById(R.id.lvListItems);
+
+		handler = new Handler() {
+			public void handleMessage(Message msg) {
+				final int what = msg.what;
+				switch (what) {
+				case 0:
+					populateList();
+					Log.i("message received", "message received ");
+					break;
+
+				}
+			}
+		};
+
+		loadingImage l = new loadingImage();
 		l.execute();
 		setSupportProgressBarIndeterminateVisibility(false);
+	}
+
+	public void populateList() {
+		userFriend = new ArrayList<IconListItem>();
+
+		for (int i = 0; i < RosterRetrieval.names.size(); i++) {
+			String status = RosterRetrieval.statuses.get(i);
+			if (status.length() > 30) {
+				status = status.substring(0, 30) + "...";
+			}
+			userFriend.add(new IconListItem(RosterRetrieval.names.get(i),
+					status, randomHexInt(), randomHexInt(), randomHexInt()));
+		}
+
+		adapter = new IconListItemAdapter(Dashboard.this,
+				R.layout.icon_list_item, userFriend);
+
+		list.setAdapter(adapter);
+		list.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				i = new Intent(Dashboard.this, Xo.class);
+				Bundle b = new Bundle();
+				b.putString("friendjid", RosterRetrieval.jids.get(arg2));
+				b.putString("friendName", RosterRetrieval.names.get(arg2));
+				b.putString("status", RosterRetrieval.statuses.get(arg2));
+				i.putExtras(b);
+				startActivity(i);
+			}
+		});
 	}
 
 	private void rateApp() {
@@ -283,7 +339,7 @@ public class Dashboard extends SherlockActivity {
 			isNetwork = CheckForNetwork
 					.checkNetworkConnection(getApplicationContext());
 			if (isNetwork == true) {
-				refreshRoster();
+				refreshList();
 			} else {
 				InternetAlertDialog.showDialog(Dashboard.this);
 			}
@@ -352,14 +408,6 @@ public class Dashboard extends SherlockActivity {
 		}
 	}
 
-	public void refreshRoster() {
-
-		Intent intent = getIntent();
-		finish();
-		startActivity(intent);
-		loadingImage.refreshList();
-	}
-
 	private int randomHexInt() {
 		// TODO Auto-generated method stub
 		Random rand = new Random();
@@ -367,104 +415,24 @@ public class Dashboard extends SherlockActivity {
 		return hexadecimal;
 	}
 
-}
-
-class loadingImage extends AsyncTask<String, Void, String> {
-	ArrayList<String> friendNames;
-	ArrayList<String> Statuses;
-	static Handler handler;
-	Context context;
-	static ListView listView;
-	Intent i;
-	static IconListItemAdapter adapter;
-	int friendActionItemPosition;
-	ActionMode mMode;
-
-	public loadingImage(Context mcontext, ListView list) {
-
-		context = mcontext;
-		listView = list;
-
-	}
-
-	@Override
-	protected String doInBackground(String... params) {
-
-		friendNames = RosterRetrieval.retrieve();
-
-		return null;
-
-	}
-
-	@Override
-	protected void onPostExecute(String result) {
-
-		super.onPostExecute(result);
-
-		ArrayList<IconListItem> userFriend = new ArrayList<IconListItem>();
-		final ArrayList<String> names = RosterRetrieval.names;
-		final ArrayList<String> jids = RosterRetrieval.jids;
-		final ArrayList<String> statuses = RosterRetrieval.statuses;
-
-		for (int i = 0; i < names.size(); i++) {
-			String status = statuses.get(i);
-			if (status.length() > 30) {
-				status = status.substring(0, 30) + "...";
-			}
-			userFriend.add(new IconListItem(names.get(i), status,
-					randomHexInt(), randomHexInt(), randomHexInt()));
-		}
-
-		adapter = new IconListItemAdapter(context, R.layout.icon_list_item,
-				userFriend);
-
-		listView.setAdapter(adapter);
-		listView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				// TODO Auto-generated method stub
-				i = new Intent(context, Xo.class);
-				Bundle b = new Bundle();
-				b.putString("friendjid", jids.get(arg2));
-				b.putString("friendName", names.get(arg2));
-				b.putString("status", statuses.get(arg2));
-				i.putExtras(b);
-				context.startActivity(i);
-			}
-		});
-
-	}
-
-	private int randomHexInt() {
-		// TODO Auto-generated method stub
-		Random rand = new Random();
-		int hexadecimal = rand.nextInt(255);
-		return hexadecimal;
-	}
-
-	public static void refreshList() {
-
-		final int DO_UPDATE_TEXT = 0;
-		final int DO_THAT = 1;
-
-		handler = new Handler() {
+	public void refreshList() {
+		refreshHandler = new Handler() {
 			public void handleMessage(Message msg) {
 				final int what = msg.what;
 				switch (what) {
-				case DO_UPDATE_TEXT:
-					listView.invalidateViews();
+				case 0:
+
 					adapter.notifyDataSetChanged();
-					Log.i("message receivedin refresh", "message received ");
+
+					Log.i("message received", "message received ");
 					break;
-				case DO_THAT:
-					// doThat();
-					break;
+
 				}
 			}
 		};
-		handler.sendEmptyMessage(0);
+		userFriend.clear();
+		RefreshStatuses refresh = new RefreshStatuses();
+		refresh.execute();
 
 	}
 

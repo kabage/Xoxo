@@ -121,7 +121,7 @@ public class Xo extends SherlockActivity implements DialModel.Listener {
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		ViewFriendPoints.leaveRoom();
+		 ViewFriendPoints.leaveRoom();
 		finish();
 	}
 

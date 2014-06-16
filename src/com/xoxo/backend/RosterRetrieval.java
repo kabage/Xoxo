@@ -7,6 +7,8 @@ import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
 
+import com.xoxo.Dashboard;
+
 import android.util.Log;
 
 public class RosterRetrieval {
@@ -19,6 +21,11 @@ public class RosterRetrieval {
 
 	public static ArrayList<String> retrieve() {
 
+		userFriends.clear();
+		names.clear();
+		statuses.clear();
+		jids.clear();
+
 		connect = MaintainConnection.connection;
 		userFriends = retrieveRosterOfRegisteredUsers(connect);
 
@@ -30,35 +37,46 @@ public class RosterRetrieval {
 			XMPPConnection connect) {
 
 		// method retrieves a list of registered roster entries
-		Roster roster = connect.getRoster();
 
-		Collection<RosterEntry> entries = roster.getEntries();
-		for (RosterEntry entry : entries) {
-			String name = entry.getName();
-			String jid = entry.getUser();
+		if (Dashboard.cached==false) {
 
-			if (CheckUserRegistration.check(jid) == true) {
-				if (names.contains(name) == false) {
-					names.add(name);
+			Roster roster = connect.getRoster();
+			
+			Collection<RosterEntry> entries = roster.getEntries();
+			for (RosterEntry entry : entries) {
+				String name = entry.getName();
+				String jid = entry.getUser();
+
+				if (CheckUserRegistration.check(jid) == true) {
+					if (names.contains(name) == false) {
+						names.add(name);
+					}
+					if (jids.contains(jid) == false) {
+						jids.add(jid);
+					}
+					Log.i("the not unregistered 57",
+							entry.getName() + entry.getUser());
 				}
-				if (jids.contains(jid) == false) {
-					jids.add(jid);
-				}
-				Log.i("the not unregistered", entry.getName() + entry.getUser());
 			}
-
+			retrieveStatuses();
 		}
-		retrieveStatuses();
+
+		else {
+
+			names = CacheStore.cachedNames;
+			jids =CacheStore.cachedJids;
+			retrieveStatuses();
+		}
 
 		return names;
 	}
-
 	public static void retrieveStatuses() {
 		for (int i = 0; i < jids.size(); i++) {
 			String status = Statuses.getFriendStatus(jids.get(i));
 
 			if (status != null) {
 				statuses.add(status);
+				Log.i("logging friend statuses", status);
 			} else {
 				statuses.add("no status available");
 			}
@@ -66,9 +84,8 @@ public class RosterRetrieval {
 		}
 	}
 
-	public void connectionTermination() {
+	public static void connectionTermination() {
 		connect.disconnect();
 	}
 
-	
 }

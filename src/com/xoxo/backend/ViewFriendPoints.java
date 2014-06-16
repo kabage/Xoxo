@@ -7,6 +7,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,10 +29,12 @@ public class ViewFriendPoints {
 		// if(muc.isJoined()==false){}
 		muc = new MultiUserChat(connect, friendNumber + "@conference.candr.com");
 
+		DiscussionHistory history = new DiscussionHistory();
+		history.setMaxStanzas(10000);
+
 		try {
-			if (muc.isJoined() != true) {
-			}
-			muc.join(connect.getUser());
+
+			muc.join(connect.getUser(), null, history, 20000);
 		} catch (XMPPException e) {
 			Log.e("error logging in to view friends's channnel", e.toString());
 		}
@@ -68,7 +71,7 @@ public class ViewFriendPoints {
 	public static void leaveRoom() {
 		points = null;
 		friendPoints = friendPoints * 0;
-		muc.leave();
+		// muc.leave();
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.xoxo.backend;
 
+import org.jivesoftware.smack.XMPPConnection;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +10,7 @@ import android.os.Message;
 import android.util.Log;
 
 public class Broadcast extends BroadcastReceiver {
-
+	static XMPPConnection connection = MaintainConnection.connection;
 	Handler handler;
 
 	@Override
@@ -21,7 +23,7 @@ public class Broadcast extends BroadcastReceiver {
 				final int what = msg.what;
 				switch (what) {
 				case DO_UPDATE_TEXT:
-
+					
 					Intent in = new Intent(context, ListenerService.class);
 					context.startService(in);
 
@@ -36,4 +38,6 @@ public class Broadcast extends BroadcastReceiver {
 		InitializeConnection.initialize(context, handler);
 
 	}
+
+	
 }

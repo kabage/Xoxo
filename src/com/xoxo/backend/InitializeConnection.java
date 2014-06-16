@@ -7,7 +7,8 @@ public class InitializeConnection {
 
 	public static void initialize(Context context, Handler hand) {
 		if (MaintainConnection.connection == null) {
-			MaintainConnection.connect(context, hand);
+			MaintainConnection connect = new MaintainConnection(context, hand);
+			connect.execute();
 
 		} else {
 			if (hand != null) {

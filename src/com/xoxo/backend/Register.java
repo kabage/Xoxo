@@ -10,6 +10,7 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.PrivateDataManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.packet.SharedGroupsInfo;
@@ -37,7 +38,7 @@ public class Register {
 				PASSWORD, myHandler);
 		reg.execute();
 
-	} ///smack 
+	} 
 
 }
 
@@ -185,6 +186,21 @@ class Registration extends AsyncTask<String, Void, String> {
 			muc.create(PHONE_NUMBER);
 		} catch (XMPPException e) {
 			Log.e("errror occcured registering person as a group", e.toString());
+		}
+
+		Form submitform = null;
+		try {
+			
+			submitform = muc.getConfigurationForm().createAnswerForm();
+		} catch (XMPPException e) {
+			Log.e("an error ocurred getting config form", e.toString());
+		}
+		submitform.setAnswer("muc#roomconfig_publicroom", true);
+		try {
+			muc.sendConfigurationForm(submitform);
+		} catch (XMPPException e) {
+			Log.e("an error occured sending the configuration form ",
+					e.toString());
 		}
 
 	}

@@ -26,6 +26,7 @@ public class Statuses {
 
 	public static String getFriendStatus(String userJid) {
 		VCard status = new VCard();
+
 		try {
 			status.load(connection, userJid);
 
@@ -33,7 +34,8 @@ public class Statuses {
 			Log.i("an error occured loading friend's vcard", e.toString());
 		}
 		friendReasons = status.getField("reasons");
-
+		status = null;
+		
 		return friendReasons;
 	}
 }
